@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gothic Interactive Gift</title>
+    <!-- استيراد خطوط قوطية وعربية مناسبة -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Amiri:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a090c;
+            --window-bg: #16131a;
+            --border-color: #5c192b;
+            --accent-crimson: #8a1c36;
+            --text-silver: #d8d4de;
+            --gold-muted: #b39b6d;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            background-image: radial-gradient(circle at center, #1f141d 0%, #0a090c 100%);
+            color: var(--text-silver);
+            font-family: 'Amiri', serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            gap: 20px;
+        }
+
+        /* تصميم النوافذ القوطية الكلاسيكية */
+        .gothic-window {
+            background-color: var(--window-bg);
+            border: 2px solid var(--border-color);
+            box-shadow: 0 0 20px rgba(138, 28, 54, 0.3), inset 0 0 15px rgba(0,0,0,0.8);
+            width: 100%;
+            max-width: 400px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .window-header {
+            background: linear-gradient(90deg, #2b0b14, #4a1222, #2b0b14);
+            padding: 8px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            font-family: 'Cinzel Decorative', serif;
+            font-size: 0.9rem;
+            color: var(--gold-muted);
+        }
+
+        .window-controls span {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 1px solid var(--gold-muted);
+            text-align: center;
+            line-height: 10px;
+            font-size: 10px;
+            margin-right: 4px;
+            cursor: pointer;
+        }
+
+        .window-body {
+            padding: 20px;
+            text-align: center;
+        }
+
+        /* شاشة القفل */
+        input[type="password"] {
+            background: #0d0b10;
+            border: 1px solid var(--border-color);
+            color: var(--text-silver);
+            padding: 10px;
+            font-size: 1.1rem;
+            text-align: center;
+            width: 70%;
+            margin-bottom: 10px;
+            outline: none;
+        }
+
+        button {
+            background-color: var(--accent-crimson);
+            color: #fff;
+            border: 1px solid var(--gold-muted);
+            padding: 8px 20px;
+            font-family: 'Amiri', serif;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover {
+            background-color: #5c192b;
+            box-shadow: 0 0 10px var(--accent-crimson);
+        }
+
+        /* مشغل الموسيقى */
+        .music-player {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #0f0d12;
+            padding: 10px;
+            border: 1px solid #33131d;
+        }
+
+        /* منطقة الكشط */
+        .scratch-container {
+            position: relative;
+            width: 280px;
+            height: 280px;
+            margin: 0 auto;
+            border: 2px solid var(--gold-muted);
+            user-select: none;
+        }
+
+        .secret-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            cursor: crosshair;
+        }
+
+        /* إخفاء المحتوى السري قبل فتح القفل */
+        .hidden-content {
+            display: none;
+            flex-direction: column;
+            gap: 20px;
+            width: 100%;
+            align-items: center;
+            animation: fadeIn 1.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .letter-text {
+            font-size: 1.2rem;
+            line-height: 1.8;
+            color: #e0d8e8;
+            border-top: 1px dashed var(--border-color);
+            border-bottom: 1px dashed var(--border-color);
+            padding: 15px 0;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 1. نافذة كلمة المرور -->
+    <div class="gothic-window" id="lockWindow">
+        <div class="window-header">
+            <span>🦇 Eternal_Lock.exe</span>
+            <div class="window-controls"><span>_</span><span>×</span></div>
+        </div>
+        <div class="window-body">
+            <p style="font-size: 1.2rem; margin-top: 0;">أدخل الرمز السري لفك الختم...</p>
+            <input type="password" id="passInput" placeholder="••••">
+            <br>
+            <button onclick="unlock()">كسر الختم</button>
+            <p id="errorMsg" style="color: #ff4d6d; font-size: 0.9rem; display: none;">الرمز خاطئ... حاول مجدداً 🥀</p>
+        </div>
+    </div>
+
+    <!-- المحتوى الذي يظهر بعد إدخال كلمة المرور الصحيحة -->
+    <div class="hidden-content" id="secretContent">
+        
+        <!-- 2. نافذة مشغل الموسيقى -->
+        <div class="gothic-window">
+            <div class="window-header">
+                <span>🕯️ Nocturne_Player.mp3</span>
+                <div class="window-controls"><span>_</span><span>×</span></div>
+            </div>
+            <div class="window-body">
+                <div class="music-player">
+                    <span>🥀 لحن الليل الأبدي</span>
+                    <button id="playBtn" onclick="toggleMusic()">▶ تشغيل</button>
+                </div>
+                <!-- ضع رابط ملف الصوت الخاص بك هنا -->
+                <audio id="bgMusic" loop>
+                    <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+                </audio>
+            </div>
+        </div>
+
+        <!-- 3. نافذة بطاقة الكشط -->
+        <div class="gothic-window">
+            <div class="window-header">
+                <span>🗡️ Reveal_The_Memory.png</span>
+                <div class="window-controls"><span>_</span><span>×</span></div>
+            </div>
+            <div class="window-body">
+                <p>امسح الغبار الفضي لكشف الصورة المخفية...</p>
+                <div class="scratch-container">
+                    <!-- استبدل الرابط بصورتك الخاصة -->
+                    <img src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=400&q=80" alt="Gothic Rose" class="secret-image">
+                    <canvas id="scratchCanvas" width="280" height="280"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- 4. نافذة الرسالة -->
+        <div class="gothic-window">
+            <div class="window-header">
+                <span>📜 Dark_Letter.txt</span>
+                <div class="window-controls"><span>_</span><span>×</span></div>
+            </div>
+            <div class="window-body">
+                <div class="letter-text">
+                    "في عتمة هذا العالم، كنتَ أنت النور الوحيد الذي لا ينطفئ... 🖤🥀<br>
+                    كل عام وأنتِ سر سعادتي الأبدية."
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        // 1. إعداد كلمة المرور (يمكنك تغيير 1234 لأي رمز تريده)
+        const SECRET_PASS = "1234";
+
+        function unlock() {
+            const input = document.getElementById("passInput").value;
+            if (input === SECRET_PASS) {
+                document.getElementById("lockWindow").style.display = "none";
+                document.getElementById("secretContent").style.display = "flex";
+                initScratchCard();
+            } else {
+                document.getElementById("errorMsg").style.display = "block";
+            }
+        }
+
+        // 2. التحكم بالموسيقى
+        function toggleMusic() {
+            const audio = document.getElementById("bgMusic");
+            const btn = document.getElementById("playBtn");
+            if (audio.paused) {
+                audio.play();
+                btn.textContent = "⏸ إيقاف";
+            } else {
+                audio.pause();
+                btn.textContent = "▶ تشغيل";
+            }
+        }
+
+        // 3. برمجة تأثير الكشط (Scratch Effect)
+        function initScratchCard() {
+            const canvas = document.getElementById("scratchCanvas");
+            const ctx = canvas.getContext("2d");
+            let isDrawing = false;
+
+            // تعبئة الطبقة العلوية بلون معدني داكن
+            ctx.fillStyle = "#2a2433";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // إضافة نص إرشادي على الطبقة
+            ctx.fillStyle = "#b39b6d";
+            ctx.font = "18px Amiri";
+            ctx.textAlign = "center";
+            ctx.fillText("اكشط هنا 🦇", canvas.width / 2, canvas.height / 2);
+
+            function scratch(e) {
+                if (!isDrawing) return;
+                const rect = canvas.getBoundingClientRect();
+                const x = (e.clientX || e.touches[0].clientX) - rect.left;
+                const y = (e.clientY || e.touches[0].clientY) - rect.top;
+
+                ctx.globalCompositeOperation = "destination-out";
+                ctx.beginPath();
+                ctx.arc(x, y, 22, 0, Math.PI * 2);
+                ctx.fill();
+            }
+
+            // أحداث الماوس واللمس للهواتف
+            canvas.addEventListener("mousedown", () => isDrawing = true);
+            canvas.addEventListener("mouseup", () => isDrawing = false);
+            canvas.addEventListener("mousemove", scratch);
+
+            canvas.addEventListener("touchstart", (e) => { isDrawing = true; scratch(e); });
+            canvas.addEventListener("touchend", () => isDrawing = false);
+            canvas.addEventListener("touchmove", (e) => { e.preventDefault(); scratch(e); });
+        }
+    </script>
+</body>
+</html>
